@@ -1,0 +1,54 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto, monospace;
+  margin: 0;
+  font-size: 24px;
+  height: 100vh;
+  margin-top: 100px;
+  background-color: black;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+#game-container {
+  margin-top: 32px;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid white;
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+}
+
+.field {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 8px;
+  border: 1px solid white;
+}
+
+.field:hover {
+  background-color: #60A5FA;
+}
+
+.field:active {
+  background-color: #1d4ed8;
+  transform: translateY(4px);
+}

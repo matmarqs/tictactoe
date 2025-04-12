@@ -5,11 +5,6 @@ const game = (function() {
     ['.', '.', '.'],
   ];
 
-  const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
   let moveCount = 0;
 
   function playerToMove() {
@@ -20,33 +15,26 @@ const game = (function() {
     return playerToMove() === 'Player 1' ? 'X' : 'O';
   }
 
-  function printBoard() {
-    console.log('\nCurrent Board:');
-    for (let row of board) {
-      console.log(row.join(' '));
+  function gameOver(result) {
+    const finalResult = result === 1 ? 'Player 1 wins!' :
+      result === -1 ? 'Player 2 wins!' : 'Draw!';
+    alert(finalResult);
+  }
+
+  function play(i, j) {
+    if (board[i][j] === '.') {
+      board[i][j] = getCurrentSymbol();
+      moveCount++;
     }
-    console.log();
-  }
-
-  function getUserInput(playerName, callback) {
-    printBoard();
-    readline.question(`${playerName} (${getCurrentSymbol()}), enter your move as row column (0-2): `, input => {
-      const coords = input.trim().split(/\s+/).map(x => Number(x));
-      if (coords.length !== 2 || coords.some(isNaN) || coords.some(x => x < 0 || x > 2)) {
-        console.log('Invalid input! Please enter two numbers between 0 and 2, separated by space.');
-        getUserInput(playerName, callback);
-      } else if (board[coords[0]][coords[1]] !== '.') {
-        console.log('That position is already taken!');
-        getUserInput(playerName, callback);
-      } else {
-        callback(coords[0], coords[1]);
-      }
-    });
-  }
-
-  function makeMove(i, j) {
-    board[i][j] = getCurrentSymbol();
-    moveCount++;
+    else {
+      console.error("Invalid move. This field was already played!");
+    }
+    clear();
+    render();
+    const result = whoWins();
+    if (result !== 0 || moveCount === 9) {
+      gameOver(result);
+    }
   }
 
   function whoWins() {
@@ -69,26 +57,51 @@ const game = (function() {
     return 0; // No winner yet
   }
 
-  function main() {
-    const result = whoWins();
-    if (result !== 0 || moveCount === 9) {
-      // Game over
-      printBoard();
-      const finalResult = result === 1 ? 'Player 1 wins!' :
-        result === -1 ? 'Player 2 wins!' : 'Draw!';
-      console.log(finalResult);
-      readline.close();
-      return;
-    }
+  function render() {
+    const statusDisplay = document.querySelector(".status-display");
+    statusDisplay.textContent = `${playerToMove()} to move!`;
 
-    const currentPlayer = playerToMove();
-    getUserInput(currentPlayer, (i, j) => {
-      makeMove(i, j);
-      main(); // Continue the game
-    });
+    const container = document.querySelector("#game-container");
+
+    const boardElem = document.createElement("div");
+    boardElem.classList.add("board");
+    container.appendChild(boardElem);
+
+    let row, field;
+    for (let i = 0; i < 3; i++) {
+      row = document.createElement("div");
+      row.classList.add("row");
+      boardElem.appendChild(row);
+      for (let j = 0; j < 3; j++) {
+        field = document.createElement("div");
+        field.classList.add("field");
+        field.textContent = board[i][j];
+        field.addEventListener("click", () => {
+          play(i, j);
+        })
+        row.appendChild(field);
+      }
+    }
   }
 
-  return { main };
+  function clear() {
+    const container = document.querySelector("#game-container");
+    let boardElem = container.firstElementChild;
+    if (boardElem) {
+      // removing event listeners
+      boardElem.querySelectorAll(".field").forEach(elem => {
+        elem.replaceWith(elem.cloneNode(true));
+      });
+
+      container.removeChild(boardElem);
+      boardElem = null; // garbage collection
+    }
+    else {
+      console.error(`clear(): board = ${boardElem}`)
+    }
+  }
+
+  return { render };
 })();
 
-game.main();
+game.render();
