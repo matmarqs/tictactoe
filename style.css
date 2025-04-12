@@ -6,7 +6,7 @@
 
 body {
   font-family: Roboto, monospace;
-  margin: 0;
+  margin-top: 32px;
   font-size: 24px;
   height: 100vh;
 }
@@ -14,8 +14,8 @@ body {
 .container {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-top: 32px;
+  margin-bottom: 32px;
 }
 
 .gameboard {
@@ -54,7 +54,6 @@ body {
   border: 1px solid black;
   border-radius: 2px;
   max-width: 280px;
-  margin-top: 24px;
 }
 
 #playagain:hover {
