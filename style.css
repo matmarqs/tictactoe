@@ -32,10 +32,10 @@ body {
 
 .field {
   flex: 1;
-  height: 100px;
-  width: 100px;
+  height: 200px;
+  width: 200px;
   text-align: center;
-  font-size: 50px;
+  font-size: 100px;
   font-weight: 700;
   padding: 8px;
   background-color: white;
