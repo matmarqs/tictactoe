@@ -1,11 +1,8 @@
 const game = (function() {
-  let board = [
-    ['.', '.', '.'],
-    ['.', '.', '.'],
-    ['.', '.', '.'],
-  ];
-
-  let moveCount = 0;
+  let board, moveCount, timesPlayed = 0;
+  const statusDisplay = document.querySelector(".status-display");
+  const container = document.querySelector("#game-container");
+  const playAgainField = document.querySelector("#playagain")
 
   function playerToMove() {
     return moveCount % 2 === 0 ? 'Player 1' : 'Player 2';
@@ -18,7 +15,10 @@ const game = (function() {
   function gameOver(result) {
     const finalResult = result === 1 ? 'Player 1 wins!' :
       result === -1 ? 'Player 2 wins!' : 'Draw!';
-    alert(finalResult);
+    statusDisplay.textContent = finalResult;
+    timesPlayed++;
+    removeChildrenEventListeners(container.firstElementChild)
+    start();
   }
 
   function play(i, j) {
@@ -31,13 +31,13 @@ const game = (function() {
     }
     clear();
     render();
-    const result = whoWins();
+    const result = calculateRoundResult();
     if (result !== 0 || moveCount === 9) {
       gameOver(result);
     }
   }
 
-  function whoWins() {
+  function calculateRoundResult() {
     // Check rows
     for (let i = 0; i < 3; i++) {
       if (board[i][0] !== '.' && board[i][0] === board[i][1] && board[i][1] === board[i][2])
@@ -58,24 +58,22 @@ const game = (function() {
   }
 
   function render() {
-    const statusDisplay = document.querySelector(".status-display");
     statusDisplay.textContent = `${playerToMove()} to move!`;
 
-    const container = document.querySelector("#game-container");
-
-    const boardElem = document.createElement("div");
-    boardElem.classList.add("board");
-    container.appendChild(boardElem);
+    const gameBoard = document.createElement("div");
+    gameBoard.classList.add("gameboard");
+    container.appendChild(gameBoard);
 
     let row, field;
     for (let i = 0; i < 3; i++) {
       row = document.createElement("div");
       row.classList.add("row");
-      boardElem.appendChild(row);
+      gameBoard.appendChild(row);
       for (let j = 0; j < 3; j++) {
         field = document.createElement("div");
         field.classList.add("field");
-        field.textContent = board[i][j];
+        if ((field.textContent = board[i][j]) === '.')
+          field.style.color = "transparent";
         field.addEventListener("click", () => {
           play(i, j);
         })
@@ -84,24 +82,46 @@ const game = (function() {
     }
   }
 
-  function clear() {
-    const container = document.querySelector("#game-container");
-    let boardElem = container.firstElementChild;
-    if (boardElem) {
+  function removeChildrenEventListeners(rootNode) {
+    if (rootNode) {
       // removing event listeners
-      boardElem.querySelectorAll(".field").forEach(elem => {
+      rootNode.childNodes.forEach(elem => {
         elem.replaceWith(elem.cloneNode(true));
       });
-
-      container.removeChild(boardElem);
-      boardElem = null; // garbage collection
-    }
-    else {
-      console.error(`clear(): board = ${boardElem}`)
     }
   }
 
-  return { render };
+  function clear() {
+    let gameBoard = container.firstElementChild;
+    if (gameBoard) {
+      removeChildrenEventListeners(gameBoard);
+      container.removeChild(gameBoard);
+      gameBoard = null; // garbage collection
+    }
+  }
+
+  function resetGameVariables() {
+    moveCount = 0;
+    board = [
+      ['.', '.', '.'],
+      ['.', '.', '.'],
+      ['.', '.', '.'],
+    ];
+  }
+
+  function start() {
+    playAgainField.style.visibility = "visible";
+    playAgainField.textContent = `Click here to play${timesPlayed > 0 ? " again!" : "!"}`;
+
+    playAgainField.addEventListener("click", () => {
+      playAgainField.style.visibility = "hidden";
+      clear();
+      resetGameVariables();
+      render();
+    });
+  }
+
+  return { start };
 })();
 
-game.render();
+game.start();
